@@ -231,3 +231,11 @@ def read_root():
             results.append(future.result())
 
     return {"results": results}
+from fastapi.responses import HTMLResponse, JSONResponse
+@app.get("/", response_class=HTMLResponse)
+def read_root():
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return "<h2>RRM Web Scraper Backend is Live! (index.html not found in root)</h2>"
