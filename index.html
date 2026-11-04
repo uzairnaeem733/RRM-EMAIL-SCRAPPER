@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RRM Web Scraper Pro</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #1e293b; padding: 20px; border-radius: 8px; }
+        h1 { color: #38bdf8; }
+        input, button { padding: 10px; margin: 5px 0; border-radius: 4px; border: none; }
+        input[type="text"] { width: 65%; background: #334155; color: white; }
+        button { background: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { border: 1px solid #475569; padding: 8px; text-align: left; font-size: 14px; }
+        th { background: #1e293b; color: #38bdf8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RRM Web Scraper Pro (Cloud)</h1>
+        <div>
+            <input type="text" id="urlInput" placeholder="Enter website URL (e.g., example.com)">
+            <button onclick="scrapeSingle()">Scrape Link</button>
+        </div>
+        <p id="status" style="font-style: italic; color: #94a3b8;"></p>
+
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Domain</th>
+                    <th>Web Email</th>
+                    <th>Services</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Local testing ke liye localhost URL, jab Render par dalenge toh wahan ka URL denge
+        const BACKEND_URL = "https://rrm-email-scrapper-12333.onrender.com";
+
+        async function scrapeSingle() {
+            const url = document.getElementById("urlInput").value.trim();
+            if (!url) { alert("Please enter a URL!"); return; }
+
+            document.getElementById("status").innerText = "Status: Scraping...";
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/scrape-single`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url: url })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    const data = result.data;
+                    const tbody = document.querySelector("#resultsTable tbody");
+                    tbody.innerHTML = `<tr>
+                        <td>${data.Web_CompanyName}</td>
+                        <td>${data.companyDomain}</td>
+                        <td>${data.web}</td>
+                        <td>${data.Main_Services}</td>
+                    </tr>` + tbody.innerHTML;
+                    document.getElementById("status").innerText = "Status: Done!";
+                } else {
+                    alert("Error: " + result.detail);
+                }
+            } catch (error) {
+                alert("Network error: " + error);
+            }
+        }
+    </script>
+</body>
+</html>
