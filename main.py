@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 import pandas as pd
 import io
 import requests
@@ -220,6 +220,13 @@ async def scrape_bulk(file: UploadFile = File(...), limit: int = Form(50)):
 
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(process_row, row) for row in rows_list]
+        @app.get("/", response_class=HTMLResponse)
+def read_root():
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return "<h2>RRM Web Scraper Backend is Live! (index.html not found in root)</h2>"
         for future in as_completed(futures):
             results.append(future.result())
 
